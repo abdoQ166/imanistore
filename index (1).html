@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IMANI STORE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F4E9DC; --card:#FBF5EC; --ink:#221C16;
+    --taupe:#5B4A3B; --taupe-light:#8A7563; --gold:#AD8A54;
+    --line:#DBC9AF; --shadow:0 10px 30px rgba(34,28,22,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+  h1,h2,h3{font-family:'Cormorant Garamond',serif}
+  a{color:inherit}
+  .topbar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(244,233,220,0.92);border-bottom:1px solid var(--line)}
+  .brand-mini{display:flex;align-items:center;gap:10px}
+  .lang-select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card)}
+  .hero{display:flex;align-items:center;justify-content:center;min-height:320px;background:linear-gradient(180deg,#F4E9DC,#EBDAC5);padding:36px;text-align:center}
+  .store-name{font-size:2rem;font-weight:700;color:var(--taupe)}
+  .tagline{color:var(--taupe-light);margin-top:8px}
+  .hero-cta{display:inline-block;margin-top:12px;padding:12px 24px;background:var(--taupe);color:#fff;border-radius:999px;text-decoration:none;font-weight:700}
+  .filters-wrap{position:sticky;top:72px;background:var(--cream);padding:8px 0;border-bottom:1px solid var(--line);z-index:30}
+  .filters{display:flex;gap:8px;padding:0 18px;overflow:auto}
+  .chip{padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);cursor:pointer}
+  .chip.active{background:var(--taupe);color:white;border-color:var(--taupe)}
+  .search-row{max-width:1100px;margin:8px auto;padding:0 18px}
+  .search-input{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+  .section-title{text-align:center;margin:28px 0 12px;font-size:1.5rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;max-width:1200px;margin:0 auto;padding:0 18px 48px}
+  .card{background:var(--card);border-radius:12px;border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .card-img{aspect-ratio:3/4;background:#f8efe6;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
+  .card-img img{width:100%;height:100%;object-fit:cover;display:block;user-select:none}
+  .card-body{padding:12px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .card-name{font-family:'Cormorant Garamond',serif;font-weight:700;cursor:pointer}
+  .card-desc{color:var(--taupe-light);font-size:.92rem;flex:1}
+  .card-price{font-weight:700;color:var(--taupe)}
+  .order-btn{padding:10px;border-radius:10px;background:#25D366;color:#fff;border:none;cursor:pointer;font-weight:700}
+  footer{background:var(--ink);color:var(--cream);padding:32px;text-align:center;margin-top:18px}
+  .footer-socials{display:flex;gap:12px;justify-content:center;margin-top:12px;align-items:center}
+  .social-name{display:inline-flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--cream);font-weight:600}
+  #adminIcon{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.03);color:var(--cream);border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:120;padding:20px}
+  .overlay.show{display:flex}
+  .panel{background:var(--cream);border-radius:12px;padding:16px;max-width:760px;width:100%;max-height:90vh;overflow:auto}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .close-x{border-radius:50%;background:var(--card);border:1px solid var(--line);padding:6px;cursor:pointer}
+  .admin-tabs{display:flex;gap:8px;margin-bottom:12px}
+  .admin-tab{padding:8px;border-radius:8px;background:var(--card);border:1px solid var(--line);cursor:pointer}
+  .admin-tab.active{background:var(--taupe);color:white;border-color:var(--taupe)}
+  .field{margin-bottom:12px}
+  .field label{display:block;color:var(--taupe);margin-bottom:6px;font-size:.9rem}
+  .field input,.field textarea,.field select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:white}
+  .upload-row{display:flex;gap:8px;flex-wrap:wrap}
+  .upload-slot{width:96px;height:128px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);position:relative;overflow:hidden}
+  .upload-slot img{width:100%;height:100%;object-fit:cover}
+  .save-btn{padding:10px;border-radius:8px;background:var(--taupe);color:white;border:none;cursor:pointer}
+  .save-btn.wa{background:#25D366}
+  .order-admin-actions{display:flex;gap:8px;align-items:center}
+  .small-btn{padding:6px 8px;border-radius:8px;background:#fff;border:1px solid var(--line);cursor:pointer}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#222;color:#fff;padding:8px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:all .2s;z-index:200}
+  .toast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(-6px)}
+  .order-success { max-width:420px; text-align:center; padding:18px; border-radius:12px; background:var(--card); }
+  .order-code { font-weight:700; font-size:1.2rem; margin-top:8px; }
+  .swatches{display:flex;gap:8px;flex-wrap:wrap}
+  .swatch{width:28px;height:28px;border-radius:6px;border:1px solid #ddd;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,0.06);display:inline-flex;align-items:center;justify-content:center;padding:2px;font-size:12px}
+  .swatch.selected{outline:3px solid rgba(0,0,0,0.12)}
+  .sizes{display:flex;gap:8px;flex-wrap:wrap}
+  .size-btn{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:white;cursor:pointer}
+  .size-btn.selected{background:var(--taupe);color:white;border-color:var(--taupe)}
+  @media(max-width:780px){ .grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))} }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="brand-mini">
+        <svg width="36" height="36" viewBox="0 0 220 220" aria-hidden="true"><use href="#logoSymbol"></use></svg>
+        <span id="brandNameMini">IMANI</span>
+      </div>
+    </div>
+    <div>
+      <select id="langSelect" class="lang-select" title="Language">
+        <option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="ar">العربية</option>
+      </select>
+    </div>
+  </div>
+
+  <section class="hero" id="hero">
+    <div>
+      <div class="logo-overlay" style="margin:auto 0 8px;text-align:center"><svg width="86" height="86" viewBox="0 0 220 220" aria-hidden="true"><use href="#logoSymbol"></use></svg></div>
+      <div class="store-name" id="storeName">IMANI STORE</div>
+      <div class="tagline" id="storeTagline">Style, chosen with care</div>
+      <a href="#productGrid" class="hero-cta" id="heroCta">Shop Now</a>
+    </div>
+  </section>
+
+  <div class="filters-wrap">
+    <div class="filters" id="filters"></div>
+    <div class="search-row"><input id="searchInput" class="search-input" placeholder="Search for an item… (e.g. shirt, dress)"></div>
+  </div>
+
+  <h2 class="section-title">Our Collection</h2>
+  <div class="grid" id="productGrid"><div class="empty-state" id="loadingMsg">Loading…</div></div>
+
+  <footer>
+    <svg width="56" height="56" viewBox="0 0 220 220" aria-hidden="true"><use href="#logoSymbol"></use></svg>
+    <p id="footerText">© <span id="footerYear"></span> IMANI STORE — All rights reserved</p>
+    <div id="socialLinks" class="footer-socials"></div>
+    <button id="adminIcon" title="Admin">Admin</button>
+  </footer>
+
+  <!-- Product detail modal (colors removed here per request) -->
+  <div id="productDetailOverlay" class="overlay" aria-hidden="true">
+    <div class="panel" style="max-width:900px;display:grid;grid-template-columns:1fr 380px;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div id="detailImgWrap" style="position:relative">
+          <div style="height:420px;background:#f8efe6;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <img id="detailImg" src="" alt="" style="width:100%;height:100%;object-fit:cover">
+          </div>
+          <button id="prevImgBtn" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);">‹</button>
+          <button id="nextImgBtn" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);">›</button>
+        </div>
+        <div id="detailThumbs" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"></div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="detailName"></h2>
+          <div id="detailPrice" style="font-weight:700;color:var(--taupe)"></div>
+        </div>
+        <div id="detailDesc" style="color:var(--taupe-light);margin-top:8px"></div>
+
+        <div style="margin-top:12px">
+          <label style="display:block;margin-bottom:6px">Size</label>
+          <div id="detailSizes" class="sizes" role="list"></div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button id="detailOrderBtn" class="save-btn">Order</button>
+          <button id="detailCloseBtn" class="small-btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin modal (unchanged) -->
+  <div id="adminOverlay" class="overlay" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="panel-head"><h2 id="adminTitle">Admin</h2><button class="close-x" data-close="adminOverlay">✕</button></div>
+
+      <div class="admin-tabs" role="tablist">
+        <button class="admin-tab active" data-tab="products">Products</button>
+        <button class="admin-tab" data-tab="orders">Orders</button>
+        <button class="admin-tab" data-tab="settings">Settings</button>
+        <button class="admin-tab" data-tab="suggestions">Suggestions</button>
+      </div>
+
+      <div id="tab-products" class="tab-panel">
+        <div class="field"><label>Product photos (up to 3)</label><div id="uploadRow" class="upload-row"></div><input id="imgInput" type="file" accept="image/*" multiple style="display:none"><div style="display:flex;gap:8px;margin-top:8px"><input id="imgUrlInput" placeholder="https://..."><button id="addUrlBtn" class="save-btn" type="button">Add URL</button></div></div>
+        <div class="field"><label>Item name</label><input id="pName" placeholder="e.g. Striped Summer Dress"></div>
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          <div style="flex:1"><label>Price</label><input id="pPrice" type="number" placeholder="45"></div>
+          <div style="flex:1"><label>Category</label><input id="pCategory" list="catList" placeholder="Dresses"><datalist id="catList"></datalist></div>
+        </div>
+        <div class="field"><label>Short description</label><textarea id="pDesc" rows="3" placeholder="Size, fabric..."></textarea></div>
+        <div class="field"><label>Available colors (comma-separated names or hex, e.g. red,#000,#fff)</label><input id="pColors" placeholder="Red, #000000, Beige"></div>
+        <button id="saveProduct" class="save-btn">Add Product</button>
+        <hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">
+        <h3>Current products</h3>
+        <div id="existingList"></div>
+      </div>
+
+      <div id="tab-orders" class="tab-panel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Orders</h3>
+          <div>
+            <button id="exportOrdersBtn" class="save-btn small-btn" style="margin-right:8px">Export CSV</button>
+            <button id="clearOrdersBtn" class="small-btn">Clear All</button>
+          </div>
+        </div>
+        <div id="ordersList"></div>
+      </div>
+
+      <div id="tab-settings" class="tab-panel" style="display:none">
+        <div class="field"><label>Store name</label><input id="setName" placeholder="IMANI STORE"></div>
+        <div class="field"><label>Tagline</label><input id="setTagline" placeholder="Style, chosen with care"></div>
+        <div class="field"><label>WhatsApp display (name or number) — display only</label><input id="setWhatsapp" placeholder="e.g. +212 6xx xxxx or ImaniWhats"></div>
+        <div class="field"><label>WhatsApp Business link (optional, not shown publicly)</label><input id="setWhatsappLink" placeholder="https://wa.me/12125551234"></div>
+        <div class="field"><label>Instagram name (display only)</label><input id="setInstagram" placeholder="your_insta_name"></div>
+        <div class="field"><label>TikTok name (display only)</label><input id="setTiktok" placeholder="your_tiktok_name"></div>
+        <div class="field"><label>Currency symbol</label><input id="setCurrency" placeholder="$"></div>
+        <div style="display:flex;align-items:center;gap:8px"><input id="useWhatsappLink" type="checkbox"><label for="useWhatsappLink">(keeps business link saved but not shown)</label></div>
+        <button id="saveSettings" class="save-btn">Save Settings</button>
+      </div>
+
+      <div id="tab-suggestions" class="tab-panel" style="display:none"><h3>Visitor Suggestions</h3><div id="suggestionsList"></div></div>
+    </div>
+  </div>
+
+  <!-- Access modal -->
+  <div id="accessOverlay" class="overlay" aria-hidden="true">
+    <div class="panel" style="max-width:420px"><div class="panel-head"><h3>Owner Access</h3><button class="close-x" data-close="accessOverlay">✕</button></div><div class="field"><label>Enter access code</label><input id="accessCodeInput" type="password"></div><button id="accessSubmitBtn" class="save-btn">Unlock</button></div>
+  </div>
+
+  <!-- Order modal: added free-text color/description input -->
+  <div id="orderOverlay" class="overlay" aria-hidden="true">
+    <div class="panel" style="max-width:560px"><div class="panel-head"><h3>Order</h3><button class="close-x" data-close="orderOverlay">✕</button></div>
+      <div class="field"><label>Item</label><div id="orderItemLabel" class="hint"></div></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div style="flex:1">
+          <label>Size</label>
+          <div id="orderSizes" class="sizes" data-value="" role="list"></div>
+        </div>
+        <div style="flex:1">
+          <label>Color / Description (optional)</label>
+          <input id="custColor" placeholder="e.g. Red, #FF0000, 'navy' or any notes about color">
+        </div>
+      </div>
+
+      <div class="field"><label>Your name</label><input id="custName"></div>
+      <div class="field"><label>Your phone</label><input id="custPhone"></div>
+      <div class="field"><label>Delivery address (localisation)</label><textarea id="custAddress" rows="2" placeholder="Street, city, area..."></textarea></div>
+      <div class="field"><label>Advice / Notes (optional)</label><textarea id="custNotes" rows="3" placeholder="Any delivery notes, size preferences, etc."></textarea></div>
+      <button id="confirmOrderBtn" class="save-btn">Confirm & Record Order</button>
+    </div>
+  </div>
+
+  <!-- Order success modal -->
+  <div id="orderSuccessOverlay" class="overlay" aria-hidden="true">
+    <div class="panel order-success" style="max-width:420px">
+      <h3>Order received</h3>
+      <div id="successText">Thank you — we saved your order.</div>
+      <div class="order-code" id="orderCodeDisplay"></div>
+      <div style="margin-top:12px"><button class="save-btn" id="closeSuccessBtn">Close</button></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <svg width="0" height="0" style="position:absolute">
+    <symbol id="logoSymbol" viewBox="0 0 220 220"><path d="M110 40 L115 55 L130 60 L115 65 L110 80 L105 65 L90 60 L105 55 Z" fill="#5B4A3B"/><text x="110" y="150" font-family="Cormorant Garamond, serif" font-size="90" font-weight="700" fill="#5B4A3B" text-anchor="middle">IM</text></symbol>
+  </svg>
+
+<script>
+/* STORAGE KEYS & DEFAULTS */
+const PRODUCTS_KEY = 'im-boutique-products';
+const SETTINGS_KEY = 'im-boutique-settings';
+const ORDERS_KEY = 'im-boutique-orders';
+const SUGGESTIONS_KEY = 'im-boutique-suggestions';
+
+let products = [], orders = [], suggestions = [];
+let currentOrderProduct = null;
+let currentDetail = { product: null, imgIndex: 0, selectedSize: '' };
+let carouselIntervals = {};
+let settings = {
+  name: 'IMANI STORE',
+  tagline: 'Style, chosen with care',
+  whatsappDisplay: '',
+  whatsappLink: '',
+  instagramName: '',
+  tiktokName: '',
+  useWhatsappLink: false,
+  currency: '$',
+  language: 'en'
+};
+let activeCategory = 'All', searchTerm = '';
+
+const PRODUCT_ACCESS_CODE = '12IMANI2026..@1';
+
+/* storage helpers */
+function storageGet(key){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }catch(e){return null;} }
+function storageSet(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); return true; }catch(e){return false;} }
+
+/* toast */
+function showToast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+/* init/load */
+function loadAll(){
+  products = storageGet(PRODUCTS_KEY) || [];
+  settings = Object.assign(settings, storageGet(SETTINGS_KEY) || {});
+  orders = storageGet(ORDERS_KEY) || [];
+  suggestions = storageGet(SUGGESTIONS_KEY) || [];
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+  applySettingsToUI();
+  renderCategoryDatalist();
+  renderFilters();
+  renderProducts();
+  renderExistingList();
+  renderOrdersList();
+  renderSuggestionsList();
+}
+
+/* show social names as plain text */
+function applySettingsToUI(){
+  document.getElementById('brandNameMini').textContent = settings.name;
+  document.getElementById('storeName').textContent = settings.name;
+  document.getElementById('storeTagline').textContent = settings.tagline;
+  document.getElementById('langSelect').value = settings.language || 'en';
+  renderFooterSocials();
+}
+function renderFooterSocials(){
+  const wrap = document.getElementById('socialLinks'); wrap.innerHTML='';
+  if(settings.whatsappDisplay){ const el=document.createElement('div'); el.className='social-name'; el.textContent = 'WhatsApp: ' + settings.whatsappDisplay; wrap.appendChild(el); }
+  if(settings.instagramName){ const el=document.createElement('div'); el.className='social-name'; el.textContent = 'Instagram: ' + settings.instagramName; wrap.appendChild(el); }
+  if(settings.tiktokName){ const el=document.createElement('div'); el.className='social-name'; el.textContent = 'TikTok: ' + settings.tiktokName; wrap.appendChild(el); }
+  wrap.style.display = wrap.children.length ? 'flex' : 'none';
+}
+
+/* Prevent right-click on product images (casual) */
+document.addEventListener('contextmenu', function(e){ if(e.target && e.target.closest && e.target.closest('.card-img')) e.preventDefault(); });
+
+/* PRODUCT RENDERING */
+function getCategories(){ return ['All', ...Array.from(new Set(products.map(p=>p.category).filter(Boolean)))]; }
+function renderFilters(){ const wrap=document.getElementById('filters'); wrap.innerHTML=''; getCategories().forEach(cat=>{ const chip=document.createElement('button'); chip.className='chip'+(cat===activeCategory?' active':''); chip.textContent=cat; chip.addEventListener('click', ()=>{ activeCategory=cat; renderFilters(); renderProducts(); }); wrap.appendChild(chip); }); }
+function renderCategoryDatalist(){ const dl=document.getElementById('catList'); if(!dl) return; dl.innerHTML=''; getCategories().filter(c=>c!=='All').forEach(c=>{ const opt=document.createElement('option'); opt.value=c; dl.appendChild(opt); }); }
+
+document.getElementById('searchInput').addEventListener('input', e=>{ searchTerm = e.target.value.trim().toLowerCase(); renderProducts(); });
+
+function renderProducts(){
+  const grid = document.getElementById('productGrid'); grid.innerHTML=''; clearCarousels();
+  let list = products.slice();
+  if(activeCategory !== 'All') list = list.filter(p=>p.category === activeCategory);
+  if(searchTerm) list = list.filter(p=> (p.name||'').toLowerCase().includes(searchTerm) || (p.description||'').toLowerCase().includes(searchTerm));
+  if(list.length===0){ grid.innerHTML = '<div class="empty-state">'+(products.length===0?'<h3>No products yet</h3>':'<h3>No results</h3>')+'</div>'; return; }
+  list.forEach(p=>{
+    const card = document.createElement('div'); card.className='card';
+    const imgHtml = (p.images && p.images.length) ? `<img src="${p.images[0]}" alt="">` : `<div style="padding:12px;color:var(--taupe-light)">No photo</div>`;
+    card.innerHTML = `<div class="card-img" data-id="${p.id}">${imgHtml}</div>
+                      <div class="card-body">
+                        ${p.category?`<div style="color:var(--gold);font-weight:700;font-size:.78rem">${p.category}</div>`:''}
+                        <div class="card-name" data-id="${p.id}">${p.name}</div>
+                        ${p.description?`<div class="card-desc">${p.description}</div>`:''}
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                          <div class="card-price">${(settings.currency||'$')+p.price}</div>
+                          <button class="order-btn" data-order-product="${p.id}">Order</button>
+                        </div>
+                      </div>`;
+    grid.appendChild(card);
+
+    // Click image or name -> open detail modal
+    const imgWrap = card.querySelector('.card-img');
+    const nameEl = card.querySelector('.card-name');
+    imgWrap.addEventListener('click', ()=>openProductDetail(p.id));
+    nameEl.addEventListener('click', ()=>openProductDetail(p.id));
+
+    // Order button opens detail then order flow
+    const orderBtn = card.querySelector('.order-btn');
+    orderBtn.addEventListener('click', ()=>openProductDetail(p.id, true));
+
+    // carousel if multiple images
+    if(p.images && p.images.length > 1) startCardCarousel(card, p.images, p.id);
+  });
+}
+
+/* Basic card carousel used in grid */
+function clearCarousels(){ for(const k in carouselIntervals) clearInterval(carouselIntervals[k]); carouselIntervals = {}; }
+function startCardCarousel(cardEl, images, id){
+  const imgEl = cardEl.querySelector('.card-img img'); if(!imgEl) return;
+  const imgs = images.slice(0,3); let idx = 0; imgEl.src = imgs[0];
+  carouselIntervals[id] = setInterval(()=>{ idx = (idx+1) % imgs.length; imgEl.style.transition='opacity .28s'; imgEl.style.opacity='0'; setTimeout(()=>{ imgEl.src = imgs[idx]; imgEl.style.opacity='1'; }, 280); }, 2600);
+}
+
+/* PRODUCT DETAIL MODAL (colors removed) */
+function openProductDetail(productId, autoOpenOrder=false){
+  const p = products.find(x=>x.id===productId);
+  if(!p) return;
+  currentDetail.product = p;
+  currentDetail.imgIndex = 0;
+  currentDetail.selectedSize = 'M'; // default
+
+  // populate UI
+  document.getElementById('detailImg').src = (p.images && p.images.length) ? p.images[0] : '';
+  const thumbs = document.getElementById('detailThumbs'); thumbs.innerHTML='';
+  (p.images || []).forEach((src, idx)=>{ const t = document.createElement('img'); t.src = src; t.style.width='56px'; t.style.height='56px'; t.style.objectFit='cover'; t.style.borderRadius='6px'; t.style.cursor='pointer'; t.addEventListener('click', ()=>{ currentDetail.imgIndex = idx; document.getElementById('detailImg').src = src; }); thumbs.appendChild(t); });
+
+  document.getElementById('detailName').textContent = p.name;
+  document.getElementById('detailPrice').textContent = (settings.currency||'$') + p.price;
+  document.getElementById('detailDesc').innerHTML = p.description || '';
+
+  // sizes (standard sizes S M L XL)
+  const sizes = ['S','M','L','XL'];
+  const sizesWrap = document.getElementById('detailSizes'); sizesWrap.innerHTML='';
+  sizes.forEach(sz=>{ const b = document.createElement('button'); b.className='size-btn'; b.textContent = sz; b.setAttribute('role','button'); b.setAttribute('aria-pressed','false');
+    b.addEventListener('click', ()=>{ document.querySelectorAll('#detailSizes .size-btn').forEach(sb=>{ sb.classList.remove('selected'); sb.setAttribute('aria-pressed','false'); }); b.classList.add('selected'); b.setAttribute('aria-pressed','true'); currentDetail.selectedSize = sz; });
+    b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); b.click(); } });
+    sizesWrap.appendChild(b); if(sz===currentDetail.selectedSize){ b.classList.add('selected'); b.setAttribute('aria-pressed','true'); } });
+
+  // image navigation
+  document.getElementById('prevImgBtn').onclick = ()=>{ if(!currentDetail.product || !currentDetail.product.images) return; currentDetail.imgIndex = (currentDetail.imgIndex -1 + currentDetail.product.images.length) % currentDetail.product.images.length; document.getElementById('detailImg').src = currentDetail.product.images[currentDetail.imgIndex]; };
+  document.getElementById('nextImgBtn').onclick = ()=>{ if(!currentDetail.product || !currentDetail.product.images) return; currentDetail.imgIndex = (currentDetail.imgIndex +1) % currentDetail.product.images.length; document.getElementById('detailImg').src = currentDetail.product.images[currentDetail.imgIndex]; };
+
+  document.getElementById('detailOrderBtn').onclick = ()=> openOrderModalFromDetail();
+  document.getElementById('detailCloseBtn').onclick = ()=> document.getElementById('productDetailOverlay').classList.remove('show');
+
+  document.getElementById('productDetailOverlay').classList.add('show');
+
+  if(autoOpenOrder) {
+    setTimeout(()=>openOrderModalFromDetail(), 260);
+  }
+}
+
+/* Populate order modal: put preselected size and put color/description into free-text field */
+function populateOrderModal(product, preColor, preSize){
+  // sizes available (global S M L XL)
+  const sizes = ['S','M','L','XL'];
+  const sizesWrap = document.getElementById('orderSizes'); sizesWrap.innerHTML=''; sizesWrap.dataset.value = '';
+  sizes.forEach(sz=>{
+    const b = document.createElement('button'); b.className='size-btn'; b.textContent = sz; b.setAttribute('role','button'); b.setAttribute('aria-pressed','false');
+    b.addEventListener('click', ()=>{ document.querySelectorAll('#orderSizes .size-btn').forEach(sb=>{ sb.classList.remove('selected'); sb.setAttribute('aria-pressed','false'); }); b.classList.add('selected'); b.setAttribute('aria-pressed','true'); sizesWrap.dataset.value = sz; });
+    b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); b.click(); } });
+    sizesWrap.appendChild(b);
+    if(preSize && preSize === sz){ b.classList.add('selected'); b.setAttribute('aria-pressed','true'); sizesWrap.dataset.value = sz; }
+  });
+  if(!preSize) {
+    const defaultBtn = Array.from(sizesWrap.querySelectorAll('.size-btn')).find(x=>x.textContent==='M');
+    if(defaultBtn){ defaultBtn.classList.add('selected'); defaultBtn.setAttribute('aria-pressed','true'); sizesWrap.dataset.value = 'M'; }
+  }
+
+  // Put preColor (if any) into the free-text input so client can adjust/type color or any description
+  const colorInput = document.getElementById('custColor');
+  if(colorInput) colorInput.value = preColor || '';
+}
+
+/* Called from detail modal to open order */
+function openOrderModalFromDetail(){
+  if(!currentDetail.product) return;
+  currentOrderProduct = currentDetail.product;
+  document.getElementById('orderItemLabel').textContent = `${currentOrderProduct.name} — ${(settings.currency||'$')+currentOrderProduct.price}`;
+  populateOrderModal(currentOrderProduct, '', currentDetail.selectedSize);
+  document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custAddress').value=''; document.getElementById('custNotes').value='';
+  document.getElementById('productDetailOverlay').classList.remove('show');
+  document.getElementById('orderOverlay').classList.add('show');
+}
+
+/* Order confirm: read free-text color/description from the input */
+function genOrderCode(){ const t = Date.now().toString(); return 'ORD' + t.slice(-7); }
+document.getElementById('confirmOrderBtn').addEventListener('click', async ()=>{
+  const cname=document.getElementById('custName').value.trim();
+  const cphone=document.getElementById('custPhone').value.trim();
+  const caddr=document.getElementById('custAddress').value.trim();
+  const cnotes=document.getElementById('custNotes').value.trim();
+  if(!cname || !cphone){ showToast('Please enter name and phone'); return; }
+  if(!currentOrderProduct){ showToast('No product selected'); return; }
+  const code = genOrderCode();
+  const selectedSize = document.getElementById('orderSizes').dataset.value || '';
+  const selectedColor = document.getElementById('custColor').value.trim() || '';
+  const order = {
+    id: 'o_' + Date.now(),
+    code,
+    productName: currentOrderProduct.name,
+    price: currentOrderProduct.price,
+    currency: settings.currency,
+    customerName: cname,
+    customerPhone: cphone,
+    customerAddress: caddr,
+    notes: cnotes,
+    size: selectedSize,
+    color: selectedColor,
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
+  };
+  orders.unshift(order);
+  storageSet(ORDERS_KEY, orders);
+  document.getElementById('orderOverlay').classList.remove('show');
+  document.getElementById('orderCodeDisplay').textContent = code;
+  document.getElementById('successText').textContent = `Thank you — we recorded your order. Share this code with the store if needed.`;
+  document.getElementById('orderSuccessOverlay').classList.add('show');
+  renderOrdersList();
+  showToast('Order recorded (confirmed)');
+});
+document.getElementById('closeSuccessBtn').addEventListener('click', ()=>document.getElementById('orderSuccessOverlay').classList.remove('show'));
+
+/* PRODUCTS ADMIN (save product includes colors unchanged) */
+const MAX_PHOTOS_ADMIN = 3;
+let pendingImages = [];
+function renderUploadRow(){ const row=document.getElementById('uploadRow'); row.innerHTML=''; pendingImages.forEach((src,idx)=>{ const slot=document.createElement('div'); slot.className='upload-slot'; slot.innerHTML = `<img src="${src}"><div style="position:absolute;top:6px;right:6px"><button data-idx="${idx}" style="background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:2px 6px;cursor:pointer">✕</button></div>`; row.appendChild(slot); }); if(pendingImages.length<MAX_PHOTOS_ADMIN){ const add=document.createElement('div'); add.className='upload-slot'; add.style.cursor='pointer'; add.textContent='+'; add.addEventListener('click', ()=>document.getElementById('imgInput').click()); row.appendChild(add); } row.querySelectorAll('button[data-idx]').forEach(b=>b.addEventListener('click', ()=>{ pendingImages.splice(Number(b.dataset.idx),1); renderUploadRow(); })); }
+function compressAndAdd(file){ return new Promise(resolve=>{ const r=new FileReader(); r.onload=(ev)=>{ const img=new Image(); img.onload=()=>{ const maxW=1200; const scale=Math.min(1,maxW/img.width); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(img.width*scale)); canvas.height=Math.max(1,Math.round(img.height*scale)); const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,canvas.width,canvas.height); resolve(canvas.toDataURL('image/jpeg',0.78)); }; img.src=ev.target.result; }; r.readAsDataURL(file); }); }
+
+document.getElementById('imgInput').addEventListener('change', async (e)=>{ const files=Array.from(e.target.files).slice(0,MAX_PHOTOS_ADMIN-pendingImages.length); for(const f of files){ const d = await compressAndAdd(f); pendingImages.push(d); } renderUploadRow(); e.target.value=''; });
+document.getElementById('addUrlBtn').addEventListener('click', ()=>{ const v=document.getElementById('imgUrlInput').value.trim(); if(!v) return; if(pendingImages.length>=MAX_PHOTOS_ADMIN){ showToast('Max 3 photos'); return; } pendingImages.push(v); document.getElementById('imgUrlInput').value=''; renderUploadRow(); });
+
+document.getElementById('saveProduct').addEventListener('click', async ()=> {
+  const name = document.getElementById('pName').value.trim();
+  const price = document.getElementById('pPrice').value.trim();
+  if(!name || !price){ showToast('Enter name and price'); return; }
+  const colorsRaw = document.getElementById('pColors').value.trim();
+  const colors = colorsRaw ? colorsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const product = {
+    id: 'p_' + Date.now(),
+    name,
+    price,
+    category: document.getElementById('pCategory').value.trim(),
+    description: document.getElementById('pDesc').value.trim(),
+    images: pendingImages.slice(),
+    colors
+  };
+  products.unshift(product);
+  if(storageSet(PRODUCTS_KEY, products)){
+    pendingImages = [];
+    renderUploadRow(); renderProducts(); renderExistingList(); renderCategoryDatalist();
+    document.getElementById('pName').value=''; document.getElementById('pPrice').value=''; document.getElementById('pCategory').value=''; document.getElementById('pDesc').value=''; document.getElementById('pColors').value='';
+    showToast('Product saved');
+  } else showToast('Could not save product');
+});
+
+/* EXISTING PRODUCTS ADMIN LIST */
+function renderExistingList(){
+  const wrap = document.getElementById('existingList'); wrap.innerHTML='';
+  if(!products || products.length===0){ wrap.innerHTML = '<p class="hint">No products added yet.</p>'; return; }
+  products.forEach(p=>{
+    const img = (p.images && p.images.length) ? p.images[0] : '';
+    const row = document.createElement('div'); row.style.display='flex'; row.style.gap='12px'; row.style.alignItems='center'; row.style.marginBottom='10px';
+    const colorsHtml = (p.colors && p.colors.length) ? ' · ' + p.colors.slice(0,3).join(', ') : '';
+    row.innerHTML = `<img src="${img}" style="width:64px;height:72px;object-fit:cover;border-radius:8px;background:var(--card)"><div style="flex:1"><div style="font-weight:700">${p.name}</div><div style="color:var(--taupe-light)">${(settings.currency||'$')+p.price}${p.category? ' · ' + p.category : ''}${colorsHtml}</div></div><div><button data-del="${p.id}" style="padding:6px;border-radius:8px;background:#fff;border:1px solid var(--line);cursor:pointer">🗑</button></div>`;
+    wrap.appendChild(row);
+    row.querySelector('[data-del]').addEventListener('click', ()=> {
+      products = products.filter(pp=>pp.id !== row.querySelector('[data-del]').dataset.del);
+      storageSet(PRODUCTS_KEY, products);
+      renderProducts(); renderExistingList(); renderCategoryDatalist();
+      showToast('Product deleted');
+    });
+  });
+}
+
+/* ORDERS RENDER */
+function renderOrdersList(){
+  const wrap = document.getElementById('ordersList'); wrap.innerHTML='';
+  if(!orders || orders.length===0){ wrap.innerHTML = '<p class="hint">No orders yet.</p>'; return; }
+  orders.forEach(o=>{
+    const date = new Date(o.createdAt).toLocaleString();
+    const row = document.createElement('div'); row.style.marginBottom='12px';
+    const header = document.createElement('div'); header.style.display='flex'; header.style.justifyContent='space-between'; header.style.alignItems='center';
+    header.innerHTML = `<div><strong>${o.productName}</strong><div style="color:var(--taupe-light)">${o.currency}${o.price}</div></div><div><span style="padding:6px 10px;border-radius:999px;background:#f0f0f0" id="badge-${o.id}">${o.status}</span></div>`;
+    const details = document.createElement('div'); details.style.color='var(--taupe-light)'; details.style.marginTop='8px';
+    details.innerHTML = `<div><strong>Code:</strong> ${o.code || o.id}</div>
+                         <div>${o.customerName} · ${o.customerPhone}${o.customerAddress?'<br>'+o.customerAddress:''}</div>
+                         ${o.size?'<div><strong>Size:</strong> '+o.size+'</div>':''}
+                         ${o.color?'<div><strong>Color/Desc:</strong> '+escapeHtml(o.color)+'</div>':''}
+                         ${o.notes?('<div style="margin-top:6px"><strong>Notes:</strong><br>'+escapeHtml(o.notes)+'</div>') : ''} 
+                         <div style="margin-top:6px"><small>${date}</small></div>`;
+    const actions = document.createElement('div'); actions.className='order-admin-actions'; actions.style.marginTop='8px';
+    const sel = document.createElement('select'); sel.innerHTML = `<option value="new">New</option><option value="confirmed">Confirmed</option><option value="done">Done</option>`; sel.value = o.status || 'new';
+    sel.addEventListener('change', ()=>{ const ord = orders.find(x=>x.id===o.id); if(ord){ ord.status = sel.value; storageSet(ORDERS_KEY, orders); const badge = document.getElementById('badge-'+o.id); if(badge) badge.textContent = ord.status; showToast('Order status updated'); renderOrdersList(); } });
+    const confirmBtn = document.createElement('button'); confirmBtn.className='small-btn'; confirmBtn.textContent='Confirm'; confirmBtn.addEventListener('click', ()=>{ const ord = orders.find(x=>x.id===o.id); if(!ord) return; ord.status='confirmed'; storageSet(ORDERS_KEY, orders); showToast('Order marked confirmed'); renderOrdersList(); });
+    const delBtn = document.createElement('button'); delBtn.className='small-btn'; delBtn.textContent='Delete'; delBtn.addEventListener('click', ()=>{ if(!confirm('Delete this order?')) return; orders = orders.filter(x=>x.id !== o.id); storageSet(ORDERS_KEY, orders); showToast('Order deleted'); renderOrdersList(); });
+    actions.appendChild(sel); actions.appendChild(confirmBtn); actions.appendChild(delBtn);
+    row.appendChild(header); row.appendChild(details); row.appendChild(actions); wrap.appendChild(row);
+  });
+}
+
+/* Export CSV and clear */
+function exportOrdersCSV(){ if(!orders || orders.length===0){ showToast('No orders to export'); return; } const cols=['order_id','code','productName','price','currency','customerName','customerPhone','customerAddress','size','color','notes','status','createdAt']; let rows=[cols.join(',')]; orders.forEach(o=>{ const line = cols.map(c=>{ const v = o[c] != null ? String(o[c]) : ''; return `"${v.replace(/"/g,'""')}"`; }).join(','); rows.push(line); }); const csv = rows.join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href = url; a.download = `imani-orders-${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+function clearAllOrders(){ if(!confirm('Clear ALL orders? This cannot be undone.')) return; orders = []; storageSet(ORDERS_KEY, orders); renderOrdersList(); showToast('All orders cleared'); }
+
+/* SUGGESTIONS */
+function renderSuggestionsList(){ const wrap=document.getElementById('suggestionsList'); wrap.innerHTML=''; if(!suggestions || suggestions.length===0){ wrap.innerHTML='<p class="hint">No suggestions yet.</p>'; return; } suggestions.forEach(s=>{ const row=document.createElement('div'); row.style.marginBottom='12px'; row.innerHTML = `<div style="font-weight:700">${s.name}</div><div style="color:var(--taupe-light)">${s.description}</div><small>${new Date(s.createdAt).toLocaleString()}</small>`; wrap.appendChild(row); }); }
+
+/* HELPERS */
+function escapeHtml(str){ if(!str) return ''; return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ADMIN + SETTINGS */
+document.getElementById('adminIcon').addEventListener('click', ()=>{ if(productAccessUnlocked) openAdmin(); else document.getElementById('accessOverlay').classList.add('show');});
+let productAccessUnlocked = false;
+document.getElementById('accessSubmitBtn').addEventListener('click', ()=>{ const v=document.getElementById('accessCodeInput').value.trim(); if(v===PRODUCT_ACCESS_CODE){ productAccessUnlocked=true; document.getElementById('accessOverlay').classList.remove('show'); openAdmin(); } else { showToast('Incorrect code'); document.getElementById('accessCodeInput').value=''; }});  
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>document.getElementById(b.dataset.close).classList.remove('show')));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('show'); }));
+
+function openAdmin(){
+  renderUploadRow(); renderExistingList(); renderCategoryDatalist(); renderOrdersList(); renderSuggestionsList();
+  document.getElementById('setName').value = settings.name || '';
+  document.getElementById('setTagline').value = settings.tagline || '';
+  document.getElementById('setWhatsapp').value = settings.whatsappDisplay || '';
+  document.getElementById('setWhatsappLink').value = settings.whatsappLink || '';
+  document.getElementById('setInstagram').value = settings.instagramName || '';
+  document.getElementById('setTiktok').value = settings.tiktokName || '';
+  document.getElementById('setCurrency').value = settings.currency || '$';
+  document.getElementById('useWhatsappLink').checked = !!settings.useWhatsappLink;
+  document.getElementById('adminOverlay').classList.add('show');
+}
+
+document.querySelectorAll('.admin-tab').forEach(btn=>btn.addEventListener('click', ()=>{ document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none'); document.getElementById('tab-'+btn.dataset.tab).style.display='block'; if(btn.dataset.tab==='orders') renderOrdersList(); if(btn.dataset.tab==='suggestions') renderSuggestionsList(); }));
+
+document.getElementById('saveSettings').addEventListener('click', async ()=> { settings.name = document.getElementById('setName').value.trim() || 'IMANI STORE'; settings.tagline = document.getElementById('setTagline').value.trim(); settings.whatsappDisplay = document.getElementById('setWhatsapp').value.trim(); settings.whatsappLink = normalizeWhatsappLink(document.getElementById('setWhatsappLink').value.trim()); settings.instagramName = document.getElementById('setInstagram').value.trim(); settings.tiktokName = document.getElementById('setTiktok').value.trim(); settings.useWhatsappLink = !!document.getElementById('useWhatsappLink').checked; settings.currency = document.getElementById('setCurrency').value.trim() || '$'; storageSet(SETTINGS_KEY, settings); applySettingsToUI(); showToast('Settings saved'); document.getElementById('adminOverlay').classList.remove('show'); });
+
+/* normalizeWhatsappLink helper (kept for admin link field) */
+function normalizeWhatsappLink(input){ if(!input) return ''; let s = String(input).trim(); const digits = s.replace(/[^\d]/g,''); if(/^\d+$/.test(digits) && digits.length >= 5) return 'https://wa.me/' + digits; if(!/^https?:\/\//i.test(s)) s = 'https://' + s; return s; }
+
+/* Buttons for CSV / Clear */
+document.getElementById('exportOrdersBtn').addEventListener('click', exportOrdersCSV);
+document.getElementById('clearOrdersBtn').addEventListener('click', clearAllOrders);
+
+/* init */
+(function init(){ loadAll(); document.getElementById('heroCta').addEventListener('click', e=>{ e.preventDefault(); document.getElementById('productGrid').scrollIntoView({behavior:'smooth', block:'start'}); }); document.getElementById('detailCloseBtn').onclick = ()=>document.getElementById('productDetailOverlay').classList.remove('show'); })();
+
+</script>
+</body>
+</html>
